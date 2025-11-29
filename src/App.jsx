@@ -44,7 +44,12 @@ import Profile from "./pages/Profile.jsx";
  * Checks authentication and role before allowing access
  */
 function ProtectedRoute({ children, requiredRole }) {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
+
+  // While restoring user from localStorage, don't redirect yet
+  if (loading) {
+    return null; // or a loader component
+  }
 
   // Not logged in
   if (!user) {

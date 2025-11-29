@@ -43,12 +43,15 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState(initialUsers);
   const [authError, setAuthError] = useState("");
+  const [loading, setLoading] = useState(true); // NEW
 
   // Persist user in localStorage
   useEffect(() => {
     const saved = localStorage.getItem("fc_user");
     if (saved) setUser(JSON.parse(saved));
+    setLoading(false); // done restoring
   }, []);
+
   useEffect(() => {
     if (user) localStorage.setItem("fc_user", JSON.stringify(user));
     else localStorage.removeItem("fc_user");
@@ -164,6 +167,7 @@ export function AuthProvider({ children }) {
     user,
     users,
     authError,
+    loading,       // NEW
     login,
     logout,
     register,

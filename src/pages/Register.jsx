@@ -46,11 +46,25 @@ export default function Register() {
   const [toast, setToast] = useState("");
   const firstInput = useRef();
 
+  // Captcha state
+  const [captchaQuestion, setCaptchaQuestion] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
+
+  function generateCaptcha() {
+    const a = Math.floor(Math.random() * 10) + 1;
+    const b = Math.floor(Math.random() * 10) + 1;
+    setCaptchaQuestion(`${a} + ${b} = ?`);
+    setCaptchaAnswer(String(a + b));
+    setCaptchaInput("");
+  }
+
   // Initial effect
   useEffect(() => {
     setForm({ name: "", email: "", password: "", confirm: "" });
     if (clearAuthError) clearAuthError();
     if (firstInput.current) firstInput.current.focus();
+    generateCaptcha();
   }, []);
 
   // Real-time validation
@@ -67,6 +81,13 @@ export default function Register() {
 
     if (Object.keys(errors).length) {
       setToast("❌ Fix highlighted fields.");
+      return;
+    }
+
+    // Captcha check
+    if (captchaInput.trim() === "" || captchaInput.trim() !== captchaAnswer) {
+      setToast("❌ Please solve the Captcha correctly.");
+      generateCaptcha();
       return;
     }
 
@@ -253,6 +274,30 @@ export default function Register() {
           )}
         </label>
 
+        {/* Captcha */}
+        <div className="mt-2">
+          <span className="font-bold text-gray-800 mb-2 block">🧩 Captcha Verification</span>
+          <div className="flex items-center gap-3">
+            <div className="px-4 py-2 rounded-lg bg-green-100 font-bold text-green-800">
+              {captchaQuestion}
+            </div>
+            <button
+              type="button"
+              className="text-xs underline text-green-700 hover:text-green-900"
+              onClick={generateCaptcha}
+            >
+              Refresh
+            </button>
+          </div>
+          <input
+            className="mt-2 px-4 py-2 border-2 rounded-lg focus:outline-none border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+            type="text"
+            placeholder="Enter answer"
+            value={captchaInput}
+            onChange={e => setCaptchaInput(e.target.value)}
+          />
+        </div>
+
         {/* Show/Hide Password */}
         <button
           type="button"
@@ -284,9 +329,9 @@ export default function Register() {
         {/* Terms */}
         <div className="text-center text-xs text-gray-500">
           By registering, you agree to our{" "}
-          <Link to="/terms" className="text-blue-600 hover:underline">
-            Terms & Conditions
-          </Link>
+            <Link to="/terms" className="text-blue-600 hover:underline">
+              Terms & Conditions
+            </Link>
           .
         </div>
       </motion.form>
