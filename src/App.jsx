@@ -33,11 +33,8 @@ import Orders from "./pages/Orders.jsx";
 import SellerDashboard from "./pages/SellerDashboard.jsx";
 import AddProduct from "./pages/AddProduct.jsx";
 
-// Admin Pages (Optional)
-// import AdminDashboard from "./pages/AdminDashboard.jsx";
-// import AdminUsers from "./pages/AdminUsers.jsx";
-// import AdminTransactions from "./pages/AdminTransactions.jsx";
-// import DisputePanel from "./pages/DisputePanel.jsx";
+// Admin Pages
+import AdminUsers from "./pages/AdminUsers.jsx";
 
 // Other Pages
 import Profile from "./pages/Profile.jsx";
@@ -145,21 +142,15 @@ function AppRoutes() {
             }
           />
 
-          {/* =========== ADMIN ROUTES (Optional) =========== */}
-          {/* Uncomment if AdminDashboard exists */}
-          {/* 
+          {/* =========== ADMIN ROUTES =========== */}
           <Route
-            path="/admin-dashboard"
+            path="/admin/users"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminDashboard />
+                <AdminUsers />
               </ProtectedRoute>
             }
           />
-          <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><AdminUsers /></ProtectedRoute>} />
-          <Route path="/admin/transactions" element={<ProtectedRoute requiredRole="admin"><AdminTransactions /></ProtectedRoute>} />
-          <Route path="/admin/disputes" element={<ProtectedRoute requiredRole="admin"><DisputePanel /></ProtectedRoute>} />
-          */}
 
           {/* =========== SHARED ROUTES =========== */}
           <Route

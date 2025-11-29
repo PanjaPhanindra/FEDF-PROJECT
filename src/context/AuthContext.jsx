@@ -9,7 +9,7 @@ export function useAuth() {
 const initialUsers = [
   {
     name: "Aditi Sharma",
-    email: "admin@farmconnect.com",
+    email: "admin@farmconnect.com",   // single hardcoded admin
     password: "admin123",
     role: "admin",
     status: "active",
@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
     setAuthError("");
     if (!email || !password) {
       setAuthError("Email and password required");
-      return false;
+      return null;
     }
     const u = users.find(
       u =>
@@ -69,10 +69,11 @@ export function AuthProvider({ children }) {
     );
     if (!u) {
       setAuthError("Invalid email or password.");
-      return false;
+      return null;
     }
-    setUser({ ...u });
-    return true;
+    const loggedUser = { ...u };
+    setUser(loggedUser);
+    return loggedUser; // return user object so login page can redirect by role
   }
 
   // Logout
@@ -88,19 +89,32 @@ export function AuthProvider({ children }) {
       setAuthError("All fields required");
       return false;
     }
+
     const email = newUser.email.trim().toLowerCase();
     const role = (newUser.role || "buyer").toLowerCase();
+
+    // Do NOT allow creating new admins from the UI
+    if (role === "admin") {
+      setAuthError("Admin accounts cannot be created from registration.");
+      return false;
+    }
+
     if (users.find(u => u.email === email)) {
       setAuthError("Email already exists");
       return false;
     }
+
     const getAvatarUrl = role => {
       switch (role) {
-        case "admin": return "https://via.placeholder.com/150?text=Admin";
-        case "seller": return "https://via.placeholder.com/150?text=Seller";
-        default: return "https://via.placeholder.com/150?text=Buyer";
+        case "admin":
+          return "https://via.placeholder.com/150?text=Admin";
+        case "seller":
+          return "https://via.placeholder.com/150?text=Seller";
+        default:
+          return "https://via.placeholder.com/150?text=Buyer";
       }
     };
+
     const userObj = {
       ...newUser,
       email,
@@ -110,8 +124,9 @@ export function AuthProvider({ children }) {
       avatarUrl: getAvatarUrl(role),
       profile: {}
     };
+
     setUsers(u => [...u, userObj]);
-    setUser(userObj);
+    setUser(userObj); // auto-login buyer/seller
     return true;
   }
 
@@ -120,12 +135,26 @@ export function AuthProvider({ children }) {
     return users;
   }
   function suspendUser(email) {
-    setUsers(u => u.map(i => i.email === email.toLowerCase() ? { ...i, status: "suspended" } : i));
-    if (user?.email === email.toLowerCase()) setUser({ ...user, status: "suspended" });
+    setUsers(u =>
+      u.map(i =>
+        i.email === email.toLowerCase()
+          ? { ...i, status: "suspended" }
+          : i
+      )
+    );
+    if (user?.email === email.toLowerCase())
+      setUser({ ...user, status: "suspended" });
   }
   function activateUser(email) {
-    setUsers(u => u.map(i => i.email === email.toLowerCase() ? { ...i, status: "active" } : i));
-    if (user?.email === email.toLowerCase()) setUser({ ...user, status: "active" });
+    setUsers(u =>
+      u.map(i =>
+        i.email === email.toLowerCase()
+          ? { ...i, status: "active" }
+          : i
+      )
+    );
+    if (user?.email === email.toLowerCase())
+      setUser({ ...user, status: "active" });
   }
   function clearAuthError() {
     setAuthError("");

@@ -39,36 +39,39 @@ export default function Login() {
 
   // Validation
   const errors = {};
-  if (!form.email || !form.email.includes("@")) errors.email = "Valid email required";
+  if (!form.email || !form.email.includes("@"))
+    errors.email = "Valid email required";
   if (!form.password) errors.password = "Enter password";
 
   // Submit handler with role-based redirection
   async function onSubmit(e) {
     e.preventDefault();
-    clearAuthError();
-    if (Object.keys(errors).length) return setToast("Please fix highlighted fields.");
+    // do NOT clearAuthError here, so login() can set it
+    if (Object.keys(errors).length)
+      return setToast("Please fix highlighted fields.");
     setSaving(true);
-    
-    // login now returns the user object (or null)
-    const loggedUser = await login(form.email, form.password);
+
+    const loggedUser = await login(form.email, form.password); // returns user or null
     setSaving(false);
-    
+
     if (loggedUser) {
       setToast("Login successful! Redirecting…");
       setTimeout(() => {
-        // ✅ CORRECTED ROUTES - Match your App.jsx
-        if (loggedUser.role === "admin") {
-          navigate("/admin-dashboard");  // ✅ New admin dashboard
-        } else if (loggedUser.role === "seller" || loggedUser.role === "farmer") {
-          navigate("/seller-dashboard");  // ✅ Seller dashboard
-        } else if (loggedUser.role === "buyer") {
-          navigate("/buyer-dashboard");  // ✅ Buyer dashboard
+        const role = loggedUser.role?.toLowerCase();
+
+        if (role === "admin") {
+          navigate("/admin-dashboard");
+        } else if (role === "seller" || role === "farmer") {
+          navigate("/seller-dashboard");
+        } else if (role === "buyer") {
+          navigate("/buyer-dashboard");
         } else {
-          navigate("/");  // Fallback for unknown roles
+          navigate("/");
         }
       }, 950);
     } else {
-      setToast("Invalid login details.");
+      // WRONG CREDENTIALS CASE – show proper message from context
+      setToast(authError || "Invalid email or password.");
     }
   }
 
@@ -92,8 +95,19 @@ export default function Login() {
         onSubmit={onSubmit}
         aria-label="Login Form"
       >
-        <h2 className="text-2xl md:text-3xl font-extrabold text-green-900 mb-1">Sign In</h2>
-        
+        {/* Back button */}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="mb-3 inline-flex items-center text-sm text-green-800 hover:text-green-900"
+        >
+          ← Back
+        </button>
+
+        <h2 className="text-2xl md:text-3xl font-extrabold text-green-900 mb-1">
+          Sign In
+        </h2>
+
         <label>
           Email
           <input
@@ -105,8 +119,8 @@ export default function Login() {
             autoComplete="email"
             disabled={forgot}
           />
-          {errors.email && <div className="form-error">{errors.email}</div>}
         </label>
+        {errors.email && <div className="form-error">{errors.email}</div>}
 
         <label>
           Password
@@ -118,8 +132,10 @@ export default function Login() {
             autoComplete="current-password"
             disabled={forgot}
           />
-          {errors.password && <div className="form-error">{errors.password}</div>}
         </label>
+        {errors.password && (
+          <div className="form-error">{errors.password}</div>
+        )}
 
         <button
           type="button"
@@ -131,14 +147,14 @@ export default function Login() {
 
         <div className="flex gap-4 items-center mt-2 mb-1">
           <AnimatedButton
-  type="submit"
-  color="success"
-  loading={saving}
-  disabled={forgot}
-  className="bg-green-600 hover:bg-green-700 text-white font-bold"
->
-  Login
-</AnimatedButton>
+            type="submit"
+            color="success"
+            loading={saving}
+            disabled={forgot}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold"
+          >
+            Login
+          </AnimatedButton>
 
           <button
             type="button"
@@ -150,8 +166,18 @@ export default function Login() {
           </button>
         </div>
 
+        {/* Inline auth error */}
+        {authError && (
+          <p className="mt-1 text-sm font-semibold text-red-600">
+            {authError}
+          </p>
+        )}
+
         <div className="text-center pt-1 text-sm">
-          New user? <Link to="/register" className="underline text-blue-700">Create an account</Link>
+          New user?{" "}
+          <Link to="/register" className="underline text-blue-700">
+            Create an account
+          </Link>
         </div>
       </motion.form>
 
@@ -159,7 +185,11 @@ export default function Login() {
       <AnimatePresence>
         {(toast || authError || forgot) && (
           <motion.div className="toast" {...loginAnimations}>
-            {forgot ? <Loader label="Sending reset email..." /> : (toast || authError)}
+            {forgot ? (
+              <Loader label="Sending reset email..." />
+            ) : (
+              toast || authError
+            )}
           </motion.div>
         )}
       </AnimatePresence>

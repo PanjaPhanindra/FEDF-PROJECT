@@ -14,17 +14,40 @@ import { motion } from "framer-motion";
 
 // Button color schemes (gradient or normal)
 const colors = {
-  primary: "from-green-400 to-green-700 text-white border-green-600 hover:from-lime-400 hover:to-green-800",
-  secondary: "from-orange-200 to-yellow-300 text-green-800 border-orange-300 hover:from-yellow-200 hover:to-orange-400",
-  danger: "from-red-400 to-red-700 text-white border-red-600 hover:from-red-200 hover:to-red-700",
-  outline: "bg-white text-green-600 border-green-400 hover:bg-green-50",
+  primary:
+    "from-green-400 to-green-700 text-white border-green-600 hover:from-lime-400 hover:to-green-800",
+  secondary:
+    "from-orange-200 to-yellow-300 text-green-800 border-orange-300 hover:from-yellow-200 hover:to-orange-400",
+  danger:
+    "from-red-400 to-red-700 text-white border-red-600 hover:from-red-200 hover:to-red-700",
+  outline:
+    "bg-white text-green-600 border-green-400 hover:bg-green-50",
+
+  // ✅ New: for dark green text on light background (use this for Create Account)
+  success:
+    "bg-green-100 text-green-900 border-green-500 hover:bg-green-200",
 };
 
-// Loading spinner SVG
+// Loading spinner SVG (tuned for both light/dark, inherits currentColor)
 const loadingSpinner = (
-  <svg className="animate-spin mr-2 h-5 w-5 text-white inline-block" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-30" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+  <svg
+    className="animate-spin mr-2 h-5 w-5 inline-block text-current"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-30"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    />
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8v8H4z"
+    />
   </svg>
 );
 
@@ -73,7 +96,9 @@ export default function AnimatedButton({
     (colors[color] || colors.primary) +
     ` ` +
     sizeStyles +
-    (disabled ? " opacity-60 cursor-not-allowed" : " hover:scale-105 hover:brightness-110 active:scale-95 active:brightness-90") +
+    (disabled
+      ? " opacity-60 cursor-not-allowed"
+      : " hover:scale-105 hover:brightness-110 active:scale-95 active:brightness-90") +
     (fullWidth ? " w-full justify-center" : "") +
     " " +
     className;
@@ -82,7 +107,9 @@ export default function AnimatedButton({
   const inner = (
     <>
       {loading ? loadingSpinner : icon}
-      <span className={loading ? "opacity-70 ml-1" : ""}>{label || children}</span>
+      <span className={loading ? "opacity-70 ml-1" : ""}>
+        {label || children}
+      </span>
       {rightIcon}
       {/* Ripple effect element */}
       <span
@@ -116,7 +143,9 @@ export default function AnimatedButton({
         drag={false}
         className="inline-block"
       >
-        <Link to={to} {...btnProps}>{inner}</Link>
+        <Link to={to} {...btnProps}>
+          {inner}
+        </Link>
       </motion.span>
     );
   }

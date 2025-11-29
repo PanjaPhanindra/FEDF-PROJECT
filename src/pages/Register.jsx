@@ -6,19 +6,16 @@ import AnimatedButton from "../components/AnimatedButton.jsx";
 import Loader from "../components/Loader.jsx";
 
 /**
- * Register.jsx - FINAL & CORRECTED
+ * Register.jsx - FINAL & CORRECTED (NO ADMIN)
  * - New user registration (role selection, name, email, password, confirm)
  * - Live field validation, animated feedback, error/success toasts
- * - Role-based registration with proper redirects
+ * - Role-based registration with proper redirects (Buyer / Seller only)
  * - Animated panel, mobile-first, accessible
- * 
- * ALL ERRORS FIXED ✅
  */
 
 const ROLE_OPTIONS = [
   { value: "buyer", label: "🛒 Buyer", desc: "Find & order rural products, leave reviews" },
-  { value: "seller", label: "🧑‍🌾 Seller", desc: "List, manage and sell products" },
-  { value: "admin", label: "🔑 Admin", desc: "Manage platform and users" }
+  { value: "seller", label: "🧑‍🌾 Seller", desc: "List, manage and sell products" }
 ];
 
 function PasswordStrength({ value }) {
@@ -49,7 +46,7 @@ export default function Register() {
   const [toast, setToast] = useState("");
   const firstInput = useRef();
 
-  // ✅ FIX 1: Removed clearAuthError from dependency - causes infinite loop
+  // Initial effect
   useEffect(() => {
     setForm({ name: "", email: "", password: "", confirm: "" });
     if (clearAuthError) clearAuthError();
@@ -87,14 +84,10 @@ export default function Register() {
         setToast("✅ Account created! Redirecting…");
         setSaving(false);
 
-        // ✅ FIX 2: Check admin FIRST
         setTimeout(() => {
           console.log("Registration successful - Role:", role);
-          
-          if (role === "admin") {
-            console.log("Redirecting to admin-dashboard");
-            navigate("/admin");
-          } else if (role === "buyer") {
+
+          if (role === "buyer") {
             navigate("/buyer-dashboard");
           } else if (role === "seller") {
             navigate("/seller-dashboard");
@@ -123,11 +116,23 @@ export default function Register() {
         onSubmit={onSubmit}
         aria-label="Register Form"
       >
+        {/* Back button */}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="mb-2 inline-flex items-center text-sm text-green-800 hover:text-green-900"
+        >
+          ← Back
+        </button>
+
         {/* Header */}
         <div className="text-center mb-2">
-          <h1 className="text-4xl font-extrabold text-green-600 mb-2">🌱 Create Account</h1>
-
-          <p className="text-gray-600">Join FarmConnect today</p>
+          <h1 className="text-4xl font-extrabold text-green-700 mb-2">
+            🌱 Create Your FarmConnect Account
+          </h1>
+          <p className="text-gray-600">
+            Join a growing network of rural producers and conscious buyers.
+          </p>
         </div>
 
         {/* Role Selection */}
@@ -153,6 +158,9 @@ export default function Register() {
           <p className="text-sm text-gray-600 mt-3 text-center font-semibold">
             {ROLE_OPTIONS.find(r => r.value === role)?.desc}
           </p>
+          <p className="text-xs text-gray-500 mt-1 text-center">
+            Your role helps us personalize your actions, insights, and recommendations.
+          </p>
         </div>
 
         {/* Name Input */}
@@ -171,7 +179,11 @@ export default function Register() {
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
             autoFocus
           />
-          {errors.name && <div className="form-error text-red-600 text-sm mt-1 font-semibold">{errors.name}</div>}
+          {errors.name && (
+            <div className="form-error text-red-600 text-sm mt-1 font-semibold">
+              {errors.name}
+            </div>
+          )}
         </label>
 
         {/* Email Input */}
@@ -189,7 +201,11 @@ export default function Register() {
             onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
             autoComplete="email"
           />
-          {errors.email && <div className="form-error text-red-600 text-sm mt-1 font-semibold">{errors.email}</div>}
+          {errors.email && (
+            <div className="form-error text-red-600 text-sm mt-1 font-semibold">
+              {errors.email}
+            </div>
+          )}
         </label>
 
         {/* Password Input */}
@@ -208,7 +224,11 @@ export default function Register() {
             autoComplete="new-password"
           />
           <PasswordStrength value={form.password} />
-          {errors.password && <div className="form-error text-red-600 text-sm mt-1 font-semibold">{errors.password}</div>}
+          {errors.password && (
+            <div className="form-error text-red-600 text-sm mt-1 font-semibold">
+              {errors.password}
+            </div>
+          )}
         </label>
 
         {/* Confirm Password Input */}
@@ -226,7 +246,11 @@ export default function Register() {
             onChange={e => setForm(f => ({ ...f, confirm: e.target.value }))}
             autoComplete="new-password"
           />
-          {errors.confirm && <div className="form-error text-red-600 text-sm mt-1 font-semibold">{errors.confirm}</div>}
+          {errors.confirm && (
+            <div className="form-error text-red-600 text-sm mt-1 font-semibold">
+              {errors.confirm}
+            </div>
+          )}
         </label>
 
         {/* Show/Hide Password */}
@@ -238,13 +262,13 @@ export default function Register() {
           {showPwd ? "👁️ Hide" : "👁️ Show"} Passwords
         </button>
 
-        {/* Submit Button */}
+        {/* Submit Button - uses success variant from AnimatedButton */}
         <AnimatedButton
           type="submit"
           color="success"
           loading={saving}
           disabled={saving}
-          className="w-full"
+          className="w-full font-extrabold tracking-wide"
         >
           {saving ? "Creating Account..." : "✓ Create Account"}
         </AnimatedButton>
@@ -263,10 +287,11 @@ export default function Register() {
           <Link to="/terms" className="text-blue-600 hover:underline">
             Terms & Conditions
           </Link>
+          .
         </div>
       </motion.form>
 
-      {/* ✅ FIX 3: Toast with conditional styling for errors */}
+      {/* Toast */}
       <AnimatePresence>
         {(toast || authError) && (
           <motion.div
